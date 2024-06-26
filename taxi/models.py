@@ -15,12 +15,6 @@ class Manufacturer(models.Model):
 
 class Driver(AbstractUser):
     license_number = models.CharField(max_length=100, unique=True)
-    # username = models.CharField(max_length=100)
-    # email = models.CharField(max_length=100)
-    # password = models.CharField(max_length=100)
-    # first_name = models.CharField(max_length=100)
-    # last_name = models.CharField(max_length=100)
-
     groups = models.ManyToManyField(
         Group,
         related_name='driver_set',  # Unique related_name for the groups field
@@ -42,7 +36,7 @@ class Car(models.Model):
     manufacturer = models.ForeignKey(
         Manufacturer, on_delete=models.CASCADE, related_name="cars"
     )
-    drivers = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name="cars")
+    drivers = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name="cars", blank=True, null=True)
 
     def __str__(self):
         return self.model
