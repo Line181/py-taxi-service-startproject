@@ -1,42 +1,40 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
+from taxi_service import settings
+
 
 # Create your models here.
 
-
 class Manufacturer(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    country = models.CharField(max_length=100)
+    name = models.CharField(max_length=63, unique=True)
+    country = models.CharField(max_length=63)
 
-    def __str__(self):
-        return f"{self.name} {self.country}"
+    class Meta:
+        ordering = ("name", )
 
-
-class Driver(AbstractUser):
-    license_number = models.CharField(max_length=100, unique=True)
-    groups = models.ManyToManyField(
-        Group,
-        related_name='driver_set',  # Unique related_name for the groups field
-        blank=True
-    )
-
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name='driver_permissions_set',  # Unique related_name for the user_permissions field
-        blank=True
-    )
-
-    def __str__(self):
-        return self.username
+    def __str__(self) -> str:
+        return f"{self.name} ({self.country})"
 
 
 class Car(models.Model):
-    model = models.CharField(max_length=100)
-    manufacturer = models.ForeignKey(
-        Manufacturer, on_delete=models.CASCADE, related_name="cars"
+    model = models.CharField(max_length=63)
+    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
+    drivers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name="cars"
     )
-    drivers = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name="cars", blank=True, null=True)
 
-    def __str__(self):
-        return self.model
+    class Meta:
+        ordering = ("model",)
+
+    def __str__(self) -> str:
+        return f"{self.manufacturer.name} {self.model}"
+
+
+class Driver(AbstractUser):
+    license_number = models.CharField(max_length=63, unique=True)
+
+    class Meta:
+        verbose_name = "Driver"
+        verbose_name_plural = "Drivers"
